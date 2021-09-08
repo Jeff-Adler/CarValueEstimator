@@ -28,11 +28,20 @@ export class UsersService {
     if (!user) {
       throw new Error('user not found');
     }
+
     // We use this in lieu of .update, because .update doesn't trigger TypeORM entity lifecycle hooks.
     Object.assign(user, attrs);
 
     return this.repo.save(user);
   }
 
-  remove() {}
+  async remove(id: number) {
+    const user = await this.findOne(id);
+    if (!user) {
+      throw new Error('user not found');
+    }
+
+    // this will trigger lifecycle hooks
+    return this.repo.remove(user);
+  }
 }
