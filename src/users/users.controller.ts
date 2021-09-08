@@ -23,4 +23,9 @@ export class UsersController {
   findUser(@Param('id') id: string) {
     return this.usersService.findOne(parseInt(id));
   }
+
+  @Get()
+  findAllUsers(@Query('email') email: string) {
+    return this.usersService.find(email);
+  }
 }
