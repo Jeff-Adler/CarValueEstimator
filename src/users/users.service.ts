@@ -23,7 +23,16 @@ export class UsersService {
     return this.repo.find({ email });
   }
 
-  update(id: number, attrs: Partial<User>) {}
+  async update(id: number, attrs: Partial<User>) {
+    const user = await this.findOne(id);
+    if (!user) {
+      throw new Error('user not found');
+    }
+    // We use this in lieu of .update, because .update doesn't trigger TypeORM entity lifecycle hooks.
+    Object.assign(user, attrs);
+
+    return this.repo.save(user);
+  }
 
   remove() {}
 }
