@@ -9,14 +9,19 @@ import { map } from 'rxjs/operators';
 import { plainToClass } from 'class-transformer';
 
 export class SerializeInterceptor implements NestInterceptor {
+  constructor(private dto: any) {}
+
   intercept(context: ExecutionContext, handler: CallHandler): Observable<any> {
     // Run something before a request is handled by the request handler
-    console.log('I am running before the handler', context);
 
     return handler.handle().pipe(
+      // data = current state of the response
       map((data: any) => {
         // Run something before the response is sent out
-        console.log('Im running before response sent out', data);
+        return plainToClass(this.dto, data, {
+          // this ensures that only properties with the @expose decorator in UserDto are shown
+          excludeExtraneousValues: true,
+        });
       }),
     );
   }
