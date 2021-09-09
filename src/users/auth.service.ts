@@ -21,10 +21,11 @@ export class AuthService {
     const hash = scryptSync(password, salt, 32);
 
     // Join the hashed result and the salt together
-    const result = salt + '.' + hash.toString('hex');
+    const encryptedPassword = salt + '.' + hash.toString('hex');
 
-    // Create a new user and save it
-    // return the user
+    const user = await this.usersService.create(email, encryptedPassword);
+
+    return user;
   }
 
   // Bad function name. Really should be something like 'authenticate', maybe?
