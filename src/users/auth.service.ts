@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { randomBytes, scryptSync } from 'crypto';
 import { UsersService } from './users.service';
 
@@ -29,5 +33,20 @@ export class AuthService {
   }
 
   // Bad function name. Really should be something like 'authenticate', maybe?
-  signin() {}
+  async signin(email: string, password: string) {
+    const [user] = await this.usersService.find(email);
+    if (!user) {
+      throw new NotFoundException('user not found');
+    }
+
+    const [salt, storedHash] = user.password.split('.');
+
+    const hash = await scryptSync(password, salt, 32);
+
+    if (storedHash !== hash.toString('hex')) {
+      throw new BadRequestException('invalid password');
+    }
+
+    return user;
+  }
 }
